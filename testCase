@@ -1,0 +1,122 @@
+import org.junit.jupiter.api.*;
+
+import javax.swing.JButton;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class SOSGameTest {
+    private SOSGame game;
+    private int passedTests = 0;
+    private int failedTests = 0;
+
+    //test set up 
+    void setUp() {
+        game = new SOSGame();
+        game.boardSize = 3; // 3x3 board
+        game.buttons = new JButton[9];
+        for (int i = 0; i < 9; i++) {
+            game.buttons[i] = new JButton("");
+        }
+    }
+
+    //check win
+    void testCheckWinner_rowWin() {
+        game.buttons[0].setText("S");
+        game.buttons[1].setText("O");
+        game.buttons[2].setText("S");
+        assertTrue(game.checkWinner(), "Should declare a winner for row condition.");
+    }
+
+    //check win
+    void testCheckWinner_columnWin() {
+        game.buttons[0].setText("S");
+        game.buttons[3].setText("O");
+        game.buttons[6].setText("S");
+        assertTrue(game.checkWinner(), "Should declare a winner for columncondition.");
+    }
+
+    //check win 
+    void testCheckWinner_diagonalWin() {
+        game.buttons[0].setText("S");
+        game.buttons[4].setText("O");
+        game.buttons[8].setText("S");
+        assertTrue(game.checkWinner(), "Should declare a winner for diagonal condition.");
+    }
+
+    //check winner/draw
+    void testCheckWinner_noWin() {
+        game.buttons[0].setText("S");
+        game.buttons[1].setText("O");
+        game.buttons[2].setText("");
+        assertFalse(game.checkWinner(), "Should not declare a valid winner.");
+    }
+
+    void testSetGameMode() {
+        // Test valid game modes
+        game.setGameMode("Player vs Player");
+        assertEquals("Player vs Player", game.gameMode, "Game mode should be set to 'Player vs Player'.");
+    
+        game.setGameMode("Player vs Computer");
+        assertEquals("Player vs Computer", game.gameMode, "Game mode should be set to 'Player vs Computer'.");
+    
+        // Test invalid game mode
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            game.setGameMode("Invalid Mode");
+        });
+        assertEquals("Invalid game mode.", exception.getMessage(), "Should throw exception for invalid game mode.");
+    }
+
+    //reset game test
+    void testResetGame() {
+        game.buttons[0].setText("S");
+        game.currentPlayer = "O";
+        game.movesCount = 1;
+        game.resetGame();
+
+        for (JButton button : game.buttons) {
+            assertEquals("", button.getText(), "Button should be reset to empty cell.");
+        }
+        assertEquals("S", game.currentPlayer, "Current player should reset to 'S'.");
+        assertEquals(0, game.movesCount, "Moves count should reset to 0.");
+    }
+
+    void testSetBoardSize() {
+        // Test valid board sizes
+        game.setBoardSize(4);
+        assertEquals(4, game.boardSize, "Board size should be set to 4.");
+
+        game.setBoardSize(5);
+        assertEquals(5, game.boardSize, "Board size should be set to 5.");
+
+        // Test invalid board size
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            game.setBoardSize(2);
+        });
+        assertEquals("Board size must be greater than or equal to 3.", exception.getMessage(), "Should throw exception for board size less than 3.");
+    }
+
+    void testValidMove() {
+        // Make a valid move
+        boolean result = game.makeMove(0);
+        assertTrue(result, "Should be a valid move.");
+        assertEquals("S", game.buttons[0].getText(), "Button at index 0 should be 'S'.");
+    }
+    
+
+    //after tear down
+    void tearDown() {
+        // Increment the count based on test success
+        if (TestInfo.currentTestResult().getStatus() == Status.SUCCESS) {
+            passedTests++;
+        } else {
+            failedTests++;
+        }
+    }
+
+   //displau
+    static void displayResults() {
+        System.out.println("Summary:");
+        System.out.println("Passed Tests: " + passedTests);
+        System.out.println("Failed Tests: " + failedTests);
+    }
+}
