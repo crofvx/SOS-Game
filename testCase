@@ -113,6 +113,34 @@ class SOSGameTest {
         }
     }
 
+    @Test
+void testInvalidMove() {
+    // Set the initial state
+    game.makeMove(0); // First move on index 0
+    assertFalse(game.makeMove(0), "Should not allow a move on an already occupied cell.");
+    assertEquals("S", game.buttons[0].getText(), "Button at index 0 should still be 'S'.");
+}
+
+void testDrawCondition() {
+    //this practically throws the test case for an immediate draw 
+    game.buttons[0].setText("S");
+    game.buttons[1].setText("O");
+    game.buttons[2].setText("S");
+    game.buttons[3].setText("O");
+    game.buttons[4].setText("S");
+    game.buttons[5].setText("O");
+    game.buttons[6].setText("O");
+    game.buttons[7].setText("S");
+    game.buttons[8].setText("O");
+
+    //check for winner 
+    assertFalse(game.checkWinner(), "Should not declare a winner.");
+
+    //check draw clause
+    assertTrue(game.isDraw(), "Should declare a draw when the board is full.");
+}
+
+
    //displau
     static void displayResults() {
         System.out.println("Summary:");
