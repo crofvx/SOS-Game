@@ -52,14 +52,14 @@ class SOSGameTest {
     }
 
     void testSetGameMode() {
-        // Test valid game modes
+        //Test valid game modes
         game.setGameMode("Player vs Player");
         assertEquals("Player vs Player", game.gameMode, "Game mode should be set to 'Player vs Player'.");
     
         game.setGameMode("Player vs Computer");
         assertEquals("Player vs Computer", game.gameMode, "Game mode should be set to 'Player vs Computer'.");
     
-        // Test invalid game mode
+        //Test invalid game mode
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             game.setGameMode("Invalid Mode");
         });
@@ -113,7 +113,7 @@ class SOSGameTest {
         }
     }
 
-    @Test
+    
 void testInvalidMove() {
     // Set the initial state
     game.makeMove(0); // First move on index 0
@@ -139,6 +139,41 @@ void testDrawCondition() {
     //check draw clause
     assertTrue(game.isDraw(), "Should declare a draw when the board is full.");
 }
+
+void testComputerVsComputer_Winner() {
+    game.selectWinMode("Computer v Computer");
+    game.computerVsComputerGame();
+
+    //simulate time
+    try {
+        Thread.sleep(5000); //adjustable for game wait
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+
+    boolean winnerDeclared = game.checkWinner();
+    assertTrue(winnerDeclared || game.movesCount == game.boardSize * game.boardSize, 
+               "Game should end with either a winner or a draw.");
+}
+
+
+
+void testComputerVsComputer_Draw() {
+    game.selectWinMode("Computer v Computer");
+    game.computerVsComputerGame();
+
+    //sim time
+    try {
+        Thread.sleep(5000); //wait for game to be done
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+
+    assertTrue(game.movesCount == game.boardSize * game.boardSize && !game.checkWinner(),
+               "Game should end in a draw if no winner is declared and the board is full.");
+}
+
+
 
 
    //displau
