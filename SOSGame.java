@@ -8,8 +8,8 @@ public class SOSGame extends JFrame implements ActionListener {
     private JButton[] buttons;
     private String currentPlayer = "S";
     private int movesCount = 0;
-    private String gameMode = "Player v Player"; // Default mode
-    private String winMode = "General Mode"; // Default win mode
+    private String gameMode = "Player v Player"; //default mode
+    private String winMode = "General Mode"; //default win mode
     private int boardSize;
 
     public SOSGame() {
@@ -34,11 +34,15 @@ public class SOSGame extends JFrame implements ActionListener {
             JButton pvcButton = new JButton("Player v Computer");
             pvcButton.addActionListener(e -> selectWinMode("Player v Computer"));
 
+            JButton cvcButton = new JButton("Computer v Computer");
+            cvcButton.addActionListener(e -> selectWinMode("Computer v Computer"));
+
             add(pvpButton);
             add(pvcButton);
-            add(new JLabel("")); // Empty label for spacing
+            add(cvcButton);
+            add(new JLabel("")); //spacing for empty space
 
-            // Create buttons for the board
+            // create buttons for the board
             JPanel boardPanel = new JPanel();
             boardPanel.setLayout(new GridLayout(boardSize, boardSize));
             for (int i = 0; i < buttons.length; i++) {
@@ -63,10 +67,18 @@ public class SOSGame extends JFrame implements ActionListener {
                 "Game Mode", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
         resetGame();
         JOptionPane.showMessageDialog(this, "Starting " + gameMode + " in " + winMode);
+
+        if (gameMode.equals("Computer v Computer")) {
+            computerVsComputerGame();
+        }
     }
 
-    //override
+    // handle player action
     public void actionPerformed(ActionEvent e) {
+        if (gameMode.equals("Computer v Computer")) {
+            return;
+        }
+
         JButton buttonClicked = (JButton) e.getSource();
 
         if (buttonClicked.getText().equals("")) {
@@ -74,46 +86,63 @@ public class SOSGame extends JFrame implements ActionListener {
             buttonClicked.setForeground(currentPlayer.equals("S") ? Color.RED : Color.BLUE); // Set color
             movesCount++;
 
-            // Check for winner after placing the move
+            //check for winner after placing the move
             if (checkWinner()) {
                 JOptionPane.showMessageDialog(this, "Player " + currentPlayer + " wins with SOS!!!");
                 resetGame();
             } else if (movesCount == boardSize * boardSize) {
-                JOptionPane.showMessageDialog(this, "It's a draw...");
+                JOptionPane.showMessageDialog(this, "It's a draw...try again");
                 resetGame();
             } else {
                 if (gameMode.equals("Player v Computer") && currentPlayer.equals("S")) {
-                    currentPlayer = "S"; // Switch to computer
+                    currentPlayer = "S"; //switch to computer
                     computerMove();
                 } else {
-                    currentPlayer = currentPlayer.equals("S") ? "O" : "S"; // Alternate
+                    currentPlayer = currentPlayer.equals("S") ? "O" : "S";
                 }
             }
         }
     }
 
+    // user v computer and computer v computer implementation
     private void computerMove() {
         Random rand = new Random();
         while (true) {
             int move = rand.nextInt(boardSize * boardSize);
             if (buttons[move].getText().equals("")) {
-                buttons[move].setText("O");
-                buttons[move].setForeground(Color.BLUE); // Set computer color
+                buttons[move].setText(currentPlayer);
+                buttons[move].setForeground(currentPlayer.equals("S") ? Color.RED : Color.BLUE);
                 movesCount++;
 
-                // Check for winner after computer's move
+                //check for winner after computer's move
                 if (checkWinner()) {
-                    JOptionPane.showMessageDialog(this, "Computer wins with SOS!");
+                    JOptionPane.showMessageDialog(this, "Computer (" + currentPlayer + ") wins with SOS!");
                     resetGame();
+                    return;
                 } else if (movesCount == boardSize * boardSize) {
                     JOptionPane.showMessageDialog(this, "It's a draw!");
                     resetGame();
+                    return;
                 } else {
-                    currentPlayer = "S"; // Switch back to player
+                    currentPlayer = currentPlayer.equals("S") ? "O" : "S"; //alternate turns
                 }
                 break;
             }
         }
+    }
+
+    // initiates comp vs comp
+    private void computerVsComputerGame() {
+        new Thread(() -> {
+            try {
+                while (movesCount < boardSize * boardSize) {
+                    computerMove();
+                    Thread.sleep(1000); //pause to simulate wait time
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private boolean checkWinner() {
@@ -125,7 +154,7 @@ public class SOSGame extends JFrame implements ActionListener {
             }
             if (row.toString().contains("SOS")) return true;
 
-            // Check columns
+            //check columns
             StringBuilder col = new StringBuilder();
             for (int j = 0; j < boardSize; j++) {
                 col.append(buttons[j * boardSize + i].getText());
@@ -133,7 +162,7 @@ public class SOSGame extends JFrame implements ActionListener {
             if (col.toString().contains("SOS")) return true;
         }
 
-        // Check diagonals
+        //check diagonals
         StringBuilder diag1 = new StringBuilder();
         StringBuilder diag2 = new StringBuilder();
         for (int i = 0; i < boardSize; i++) {
@@ -148,9 +177,9 @@ public class SOSGame extends JFrame implements ActionListener {
     private void resetGame() {
         for (JButton button : buttons) {
             button.setText("");
-            button.setForeground(Color.BLACK); // Reset color
+            button.setForeground(Color.BLACK);
         }
-        currentPlayer = "S"; // Reset to starting player
+        currentPlayer = "S"; //reset to starting player
         movesCount = 0;
     }
 
